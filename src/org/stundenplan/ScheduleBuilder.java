@@ -46,9 +46,28 @@ public class ScheduleBuilder {
         return this.map;
     }
 
+    private ArrayList<Schedule> generate(Schedule seed, ArrayList<Schedule> schedules, int obligation_index) {
+        if (obligation_index >= obligations.size()) {
+            return schedules;
+        }
+
+        // for each obligation create a new schedule B that's equal to seed and add the possible obligation
+
+        // if the generated new schedule B has a smaller badness than the existing schedules,
+        // then replace the schedule with the highest badness with the new one
+        // Algorithm:
+        //      sort schedules by badness (worst is first)
+        //      if B.badness < schedules[0]: schedules[0] = 0
+        //      sort schedules by badness
+
+        return generate(seed, schedules, obligation_index+1);
+    }
+
     public ArrayList<Schedule> generatePossibleSchedules() {
         // generate all schedules, but only save the best 10
         ArrayList<Schedule> list = new ArrayList<>();
+
+
 
         return list;
     }
