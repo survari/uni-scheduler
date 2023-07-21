@@ -32,4 +32,21 @@ public class Course {
     public String getName() {
         return name;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getDay() {
+        return switch (this.day) {
+            case "Mo" -> 0;
+            case "Di" -> 1;
+            case "Mi" -> 2;
+            case "Do" -> 3;
+            case "Fr" -> 4;
+            case "Sa" -> 5;
+            case "So" -> 6;
+            default -> 0;
+        };
+    }
 }
