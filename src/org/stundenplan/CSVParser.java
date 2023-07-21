@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class CSVParser {
     public static ArrayList<String[]> parseCSV(String path) throws FileNotFoundException, IOException {
@@ -17,7 +18,9 @@ public class CSVParser {
                 continue;
             }
 
-            items.add(line.split(","));
+            items.add(Arrays.stream(line.split(","))
+                    .map(v -> v.trim())
+                    .toArray(String[]::new));
         }
 
         return items;

@@ -1,7 +1,8 @@
 package org.stundenplan;
 
+import com.jakewharton.fliptables.FlipTable;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -13,12 +14,29 @@ public class Schedule {
     private boolean has_collisions = false;
 
     public Schedule(Map m) {
-        this.map = map;
+        this.map = m;
         this.week = new ArrayList[7];
 
         for (int i = 0; i < this.week.length; i++) {
             this.week[i] = new ArrayList<>();
         }
+    }
+
+    public Schedule(Schedule seed) {
+        this.week = new ArrayList[seed.week.length];
+
+        for (int i = 0; i < this.week.length; i++) {
+            this.week[i] = new ArrayList<>();
+
+            for (Course c : seed.week[i]) {
+                this.week[i].add(c);
+            }
+        }
+
+        this.has_collisions = seed.has_collisions;
+        this.collision_b = seed.collision_b;
+        this.collision_a = seed.collision_a;
+        this.map = seed.map;
     }
 
     private boolean coursesOverlap(Course a, Course b) {
@@ -27,7 +45,8 @@ public class Schedule {
 
         // they overlap because they are at the same time...
         // https://stackoverflow.com/questions/325933/determine-whether-two-date-ranges-overlap/325964#325964
-        if (a.getHourFrom() <= b.getHourTo() && b.getHourFrom() <= a.getHourTo()) {
+        // doesn't allow meeting edges: if (a.getHourFrom() <= b.getHourTo() && b.getHourFrom() <= a.getHourTo()) {
+        if (a.getHourFrom() < b.getHourTo() && b.getHourFrom() < a.getHourTo()) {
             return true;
         }
 
@@ -66,8 +85,26 @@ public class Schedule {
 
     public int getBadness() {
         // badness = sum of all minutes of travel between each course
-        //           + 30*(number of courses starting at 7am)
-        return 0;
+        //           + 10*(number of courses starting before 9am)
+        //           + 10*(number of courses starting after 17am)
+        int badness = 0;
+
+        for (int day = 0; day < this.week.length; day++) {
+            ArrayList<Course> courses = this.week[day];
+
+            for (int i = 0; i < courses.size(); i++) {
+                if (courses.get(i).getHourFrom() < 9 || courses.get(i).getHourFrom() > 17) {
+                    badness += 10;
+                }
+            }
+
+            for (int i = 0; i+1 < courses.size(); i++) {
+                badness += this.map.getWeight(courses.get(i).getLocation(),
+                        courses.get(i+1).getLocation());
+            }
+        }
+
+        return badness;
     }
 
     public boolean collides() {
@@ -80,5 +117,74 @@ public class Schedule {
 
     public Course getCollisionB() {
         return collision_b;
+    }
+
+    public void print() {
+        int min_hour = 24;
+        int max_hour = 0;
+
+        for (int i = 0; i < this.week.length; i++) {
+            for (Course c : this.week[i]) {
+                if (min_hour > c.getHourFrom()) {
+                    min_hour = c.getHourFrom();
+                }
+
+                if (max_hour < c.getHourTo()) {
+                    max_hour = c.getHourTo();
+                }
+            }
+        }
+
+        ArrayList<String[]> table = new ArrayList<>();
+        System.out.println("HOURS: "+min_hour+"-"+max_hour+", BADNESS="+this.getBadness());
+
+        for (int hour = min_hour; hour < max_hour; hour++) {
+            table.add(new String[] { "T", "", "", "", "", "", "", "" });
+        }
+
+        int taken = 0;
+
+        for (int hour = min_hour; hour < max_hour; hour++) {
+            for (int day = 0; day < 7; day++) {
+                table.get(hour - min_hour)[0] = hour+"";
+
+                for (Course c : this.week[day]) {
+                    if (c.getHourFrom() == hour) {
+                        table.get(hour - min_hour)[day+1] = c.getFormattedName() + "\n(" + c.getLocation() + ")";
+
+                        for (int i = 1; i < c.getHourTo() - c.getHourFrom(); i++) {
+                            table.get(hour - min_hour + i)[day+1] = "---";
+                        }
+                    }
+                }
+            }
+        }
+
+        System.out.println(FlipTable.of(new String[] { "T", "Mo", "Di", "Mi", "Do", "Fr", "Sa", "So" },
+                table.toArray(String[][]::new)));
+    }
+
+    public ArrayList<Course> getCoursesByObligation(String obligationType) {
+        ArrayList<Course> list = new ArrayList<>();
+
+        for (Course c : this.getCourses()) {
+            if (c.getType().equals(obligationType)) {
+                list.add(c);
+            }
+        }
+
+        return list;
+    }
+
+    public ArrayList<Course> getCourses() {
+        ArrayList<Course> list = new ArrayList<>();
+
+        for (int i = 0; i < this.week.length; i++) {
+            for (Course c : this.week[i]) {
+                list.add(c);
+            }
+        }
+
+        return list;
     }
 }

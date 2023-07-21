@@ -1,8 +1,11 @@
 package org.stundenplan;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Map {
+    private static Set<String> warning_cache = new HashSet<>();
     private HashMap<String, Integer> locations;
     private HashMap<String, Integer> weightMap;
 
@@ -45,6 +48,13 @@ public class Map {
 
         } else if (weightMap.containsKey(b)) {
             return weightMap.get(b);
+        }
+
+        String warning_name = locationA+":"+locationB;
+
+        if (warning_cache.contains(warning_name)) {
+            warning_cache.add(warning_name);
+            System.out.println("WARNING: No weight between \""+locationA+"\" and \""+locationB+"\". Use 0.");
         }
 
         return 0;

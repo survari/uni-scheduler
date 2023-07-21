@@ -49,4 +49,47 @@ public class Course {
             default -> 0;
         };
     }
+
+    public String getFormattedName() {
+        int last_breakable = 0;
+        int last_last_breakable = 0;
+        String fname = "";
+        String part = "";
+        String tmp = "";
+
+        for (int i = 0; i < this.name.length(); i++) {
+            char c = this.name.charAt(i);
+            tmp += c;
+
+            if (c == ' ' || c == '\t' || c == ',' || c == '-' || c == '.' || c == ':') {
+                last_breakable = i;
+                part = tmp;
+            }
+
+            if (tmp.length() > 25) {
+                if (last_breakable > last_last_breakable) {
+                    last_last_breakable = last_breakable;
+                    i = last_breakable;
+
+                    fname += "\n" + part;
+
+                } else {
+                    fname += "\n" + tmp;
+                }
+
+                part = "";
+                tmp = "";
+            }
+        }
+
+        if (!tmp.isEmpty()) {
+            fname += "\n"+tmp;
+        }
+
+        return fname.trim();
+    }
+
+    public String getShortID() {
+        return this.name+" ("+this.location+"/"+this.day+"/"+this.hour_from+"-"+this.hour_to+")";
+    }
 }
