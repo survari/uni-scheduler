@@ -88,13 +88,24 @@ public class Schedule {
         //           + 10*(number of courses starting before 9am)
         //           + 10*(number of courses starting after 17am)
         int badness = 0;
+        int max_courses_a_day = 0;
+        boolean has_7 = false;
+        boolean has_19 = false;
 
         for (int day = 0; day < this.week.length; day++) {
             ArrayList<Course> courses = this.week[day];
 
             for (int i = 0; i < courses.size(); i++) {
-                if (courses.get(i).getHourFrom() < 9 || courses.get(i).getHourFrom() > 17) {
-                    badness += 10;
+                if (courses.get(i).getHourFrom() < 9) {
+                    badness += 20;
+                    has_7 = true;
+
+                } else if (courses.get(i).getHourFrom() > 17) {
+                    badness += 20;
+                    has_19 = true;
+
+                } else if (courses.get(i).getHourFrom() < 11 || courses.get(i).getHourFrom() > 15) {
+                    badness += 5;
                 }
             }
 
@@ -102,9 +113,23 @@ public class Schedule {
                 badness += this.map.getWeight(courses.get(i).getLocation(),
                         courses.get(i+1).getLocation());
             }
+
+            // only one course a day is bad
+            if (courses.size() == 1) {
+                badness += 10;
+            }
+
+            // the more courses a day, the worse the schedule is
+            if (max_courses_a_day < courses.size()) {
+                max_courses_a_day += courses.size();
+            }
         }
 
-        return badness;
+        if (has_19 && has_7) {
+            badness += 50;
+        }
+
+        return badness + (max_courses_a_day*5);
     }
 
     public boolean collides() {

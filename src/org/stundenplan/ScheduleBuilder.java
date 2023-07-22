@@ -7,6 +7,7 @@ public class ScheduleBuilder {
     private ArrayList<Course> courses;
     private HashMap<String, Integer> obligations;
     private Map map;
+    public int generated_schedules = 0;
 
     public ScheduleBuilder(String path) {
         this.filepath = path;
@@ -109,12 +110,14 @@ public class ScheduleBuilder {
             } else {
                 if (obligation_index+1 >= obligations.size()) {
 //                    System.out.println(new_schedule.getBadness());
+                    this.generated_schedules++;
 
                     if (schedules.size() < max_schedules) {
                         schedules.add(new_schedule);
 
                     } else if (schedules.get(schedules.size() - 1).getBadness() > new_schedule.getBadness()) {
-                        schedules.remove(schedules.size() - 1);
+                        System.out.println("Remove schedule with "+schedules.get(0).getBadness()+" for one with "+new_schedule.getBadness());
+                        schedules.remove(0);
                         schedules.add(new_schedule);
                     }
                 }
