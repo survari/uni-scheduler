@@ -16,6 +16,8 @@ public class CSVParser {
         while ((line = br.readLine()) != null) {
             if (line.trim().startsWith("//")) {
                 continue;
+            } else  if (line.contains("//")) {
+                line = line.split("//")[0].trim();
             }
 
             items.add(Arrays.stream(line.split(","))
