@@ -103,6 +103,6 @@ Collecting the data is time consuming, but more efficient than putting the timet
 java -jar scheduler.java timetable.csv
 ```
 
-![](schedule.png)
+![](timetable.png)
 
 This is the best possible timetable for the courses, the program prints the top 10, the smaller the badness-score the better.
