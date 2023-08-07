@@ -7,7 +7,7 @@ You can find a usable JAR-file [here](https://github.com/survari/uni-scheduler/r
 Here is an example: Let's say you study to become a teacher for computer science and philosophy and you want to create the timetable for your third semester. But because the logic courses in philsophy and computer science overlap in the first semester, you now have to take _Theoretical Philosophy 1_, _Teaching Philosohy_, _Software Engineering_, and _Logic_.
 
 ### 1. Courses
-The course catalog shows you all the modules that you can attend to, look them up. After you collected your possible courses, put them into the CSV-file like this:
+The course catalog shows all the modules that you can attend to, so look them up. After you collected your possible courses, put them into the CSV-file like this:
 
 ```csv
 COURSE,<type>,<name>,<day>,<starts>,<ends>,<location>
