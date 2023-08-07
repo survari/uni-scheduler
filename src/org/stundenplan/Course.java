@@ -38,16 +38,16 @@ public class Course {
     }
 
     public int getDay() {
-        return switch (this.day) {
-            case "Mo" -> 0;
-            case "Di" -> 1;
-            case "Mi" -> 2;
-            case "Do" -> 3;
-            case "Fr" -> 4;
-            case "Sa" -> 5;
-            case "So" -> 6;
-            default -> 0;
-        };
+        switch (this.day) {
+            case "Mo": return 0;
+            case "Di": return 1;
+            case "Mi": return 2;
+            case "Do": return 3;
+            case "Fr": return 4;
+            case "Sa": return 5;
+            case "So": return 6;
+            default: return 0;
+        }
     }
 
     public String getFormattedName() {
