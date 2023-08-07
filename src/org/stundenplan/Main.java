@@ -7,7 +7,13 @@ public class Main {
         ScheduleBuilder schedules = new ScheduleBuilder(args[args.length-1]);
         ArrayList<Schedule> possible_schedules = schedules.generatePossibleSchedules(10);
 
-        System.out.println("Looked through "+schedules.generated_schedules+" schedules...");
+        System.out.println("Checked "+schedules.collision_counter +" collisions and found "+schedules.generated_schedules+" possible schedules...");
+
+        if (possible_schedules.size() == 0) {
+            for (String key : schedules.collisions.keySet()) {
+                System.out.println("Collision "+String.join(" and ", key.split("///"))+" collided "+schedules.collisions.get(key)+" times.");
+            }
+        }
 
         for (Schedule s : possible_schedules)  {
             s.print();

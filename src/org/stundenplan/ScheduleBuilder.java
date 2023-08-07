@@ -8,11 +8,14 @@ public class ScheduleBuilder {
     private HashMap<String, Integer> obligations;
     private Map map;
     public int generated_schedules = 0;
+    public int collision_counter = 0;
+    public HashMap<String, Integer> collisions;
 
     public ScheduleBuilder(String path) {
         this.filepath = path;
         this.courses = new ArrayList<>();
         this.obligations = new HashMap<>();
+        this.collisions = new HashMap<>();
 
         try {
             ArrayList<String[]> lines = CSVParser.parseCSV(path);
@@ -20,15 +23,18 @@ public class ScheduleBuilder {
 
             for (String[] line : lines) {
                 if (line.length == 4 && line[0].equals("LOC")) {
+//                    System.out.println("Added connection from "+line[1]+" to "+line[2]+": "+line[3]+" min");
                     Pair<String> loc = new Pair<>(line[1], line[2]);
                     int weight = Integer.parseInt(line[3]);
 
                     locationWeights.put(loc, weight);
 
                 } else if (line.length == 3 && line[0].equals("CHOOSE")) {
+//                    System.out.println("Choose "+line[2]+" from "+line[1]);
                     this.obligations.put(line[1], Integer.parseInt(line[2]));
 
                 } else if (line.length > 0 && line[0].equals("COURSE")) {
+//                    System.out.println("New course/course-variant: "+line[2]);
                     // COURSE, type name, tag, from, to, location
                     this.courses.add(new Course(line[1], line[2], line[3], line[4], line[5], line[6]));
                 }
@@ -39,6 +45,24 @@ public class ScheduleBuilder {
         } catch (Exception ex) {
             System.out.println("Error while parsing CSV.");
             ex.printStackTrace();
+        }
+    }
+
+    public void addCollision(Course a, Course b) {
+        if (a == null || b == null) {
+            return;
+        }
+
+        String[] arr = new String[] { a.getShortID(), b.getShortID() };
+        Arrays.sort(arr);
+
+        String id = arr[0]+"///"+arr[1];
+
+        if (this.collisions.containsKey(id)) {
+            this.collisions.put(id, this.collisions.get(id)+1);
+
+        } else {
+            this.collisions.put(id, 1);
         }
     }
 
@@ -80,6 +104,8 @@ public class ScheduleBuilder {
 
             if (new_schedule.collides()) {
                 if (!new_schedule.getCollisionA().getShortID().equals(new_schedule.getCollisionB().getShortID())) {
+                    this.collision_counter++;
+                    this.addCollision(new_schedule.getCollisionA(), new_schedule.getCollisionB());
 //                    System.out.println("  -> \"" + new_schedule.getCollisionA().getShortID() + "\" collides with \"" + new_schedule.getCollisionB().getShortID() + "\"");
                 }
 
@@ -114,6 +140,7 @@ public class ScheduleBuilder {
 
                     if (schedules.size() < max_schedules) {
                         schedules.add(new_schedule);
+                        System.out.println("Add schedule with "+schedules.get(schedules.size()-1).getBadness());
 
                     } else if (schedules.get(schedules.size() - 1).getBadness() > new_schedule.getBadness()) {
                         System.out.println("Remove schedule with "+schedules.get(0).getBadness()+" for one with "+new_schedule.getBadness());
